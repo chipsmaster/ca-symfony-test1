@@ -1,4 +1,4 @@
-# ca-oro-dev
+# ca-symfony-test1
 
 1. create **.env** from **.env.sample** (put your user id / group id)
 1. add `127.0.1.1	symfonytest1.localhost` to **/etc/hosts**
