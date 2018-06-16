@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+  db:
+    build:
+      context: ./mysql
+    volumes:
+      - mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+    networks:
+      default:
+        aliases:
+          - mysql-db-host
+
+  php:
+    build:
+      context: ./php
+      args:
+        WEB_USER_ID: "${HOST_USER_ID:?err}"
+        WEB_USER_GROUP_ID: "${HOST_USER_GROUP_ID:?err}"
+    volumes:
+      - ./www:/var/www
+      - web-composer-cache:/home/web/.composer
+    ports:
+      - "${WEB_TEST_PORT?:err}:8000"
+    networks:
+      default:
+        aliases:
+          - php-host
+
+  mail:
+    image: mailhog/mailhog
+    networks:
+      default:
+        aliases:
+          - mailhog-host
+
+  nginx:
+    build:
+      context: ./nginx
+      args:
+        WEB_USER_ID: "${HOST_USER_ID:?err}"
+        WEB_USER_GROUP_ID: "${HOST_USER_GROUP_ID:?err}"
+    volumes:
+      - ./www:/var/www
+    ports:
+      - "${WEB_PUB_PORT?:err}:80"
+    depends_on:
+      - php
+      - mail
+
+volumes:
+  mysql:
+  web-composer-cache:
+
